@@ -1,0 +1,603 @@
+
+{% block body %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Challan</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+        
+        img {
+            margin-top: 1px;
+            float: left;
+            width: 280px;
+        }
+        
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .header h3 {
+            margin: 0;
+        }
+        
+        .company-details {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-top: 0px;
+            text-align: center;
+        }
+        
+        .company-details p {
+            margin: 0px 0;
+        }
+        
+        .contact a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        
+        .contact a:hover {
+            text-decoration: underline;
+        }
+        
+        .table-section {
+            margin: 20px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        table th, 
+        table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        tfoot td {
+            font-weight: bold;
+            text-align: right;
+        }
+        
+        footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: black;
+            margin-top: 20px;
+        }
+        
+        .print-button,
+        .excel-button,
+        .pdf-button,
+        .create-button {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .create-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%;
+            max-height: 80%;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            border-radius: 10px;
+            padding: 20px;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-content .item-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .modal-content .item-row input {
+            width: calc(33.33% - 10px);
+            margin-right: 10px;
+        }
+        .modal-content input,
+        .modal-content textarea,
+        .modal-content select {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .modal-content button {
+            padding: 10px 20px;
+        }
+        
+        .modal-content button.close {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+            }
+        
+            .modal {
+                width: 90%;
+                max-height: 90%;
+            }
+        
+            table th,
+            table td {
+                font-size: 14px;
+            }
+        
+            footer {
+                font-size: 0.8em;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+        
+            .modal {
+                width: 100%;
+                padding: 10px;
+            }
+        
+            .create-button {
+                bottom: 10px;
+                right: 10px;
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        
+            table th,
+            table td {
+                font-size: 12px;
+            }
+        
+            footer {
+                font-size: 0.2em;
+            }
+        }
+        /* Print-specific styles */
+        @media print {
+            /* Hide buttons and unnecessary elements during print */
+            .print-button, .excel-button, .pdf-button, .create-button {
+                display: none;
+            }
+    
+            /* Body adjustments for printing */
+            body {
+                font-size: 12px; /* Reduce font size to fit content */
+                margin: 0;
+                padding: 0;
+            }
+    
+            .container {
+                width: 100%;
+                padding: 0;
+                box-shadow: none; /* Remove shadow for print */
+            }
+    
+            /* Table adjustments */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+    
+            table th, table td {
+                padding: 5px; /* Reduced padding */
+                font-size: 12px; /* Reduced font size */
+                border: 1px solid #000; /* Solid border for table */
+            }
+    
+            tfoot td {
+                font-weight: bold;
+                text-align: right;
+            }
+    
+            /* Footer text adjustments */
+            footer {
+                font-size: 10px;
+                color: black;
+                margin-top: 10px;
+            }
+    
+            /* Prevent page breaks in the middle of content */
+            .challan, .header, .table-section, .DC-details, .acknowledgment {
+                page-break-inside: avoid;
+            }
+    
+            /* Ensure content fits on one page */
+            .challan {
+                page-break-before: always;
+            }
+    
+            /* Adjusting the layout of the page */
+            html, body {
+                height: 100%;
+                width: 100%;
+            }
+    
+            .container {
+                max-width: 100%;
+                overflow: hidden;
+            }
+        }
+        
+
+    </style>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+
+</head>
+<body>
+    <div class="container">
+        <div class="challan">
+            <div class="header">
+                <h1>Delivery Challan</h1>
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox"> Original for Recipient
+                    </label>
+                    <label>
+                        <input type="checkbox"> Duplicate for Transporter
+                    </label>
+                    <label>
+                        <input type="checkbox"> Triplicate for Supplier
+                    </label>
+                </div>
+            </div>
+            
+            <table class="details">
+                <tr>
+                    <td style="width: 50%;"><strong>DC No:</strong></td>
+                    <td style="width: 50%;"><strong>Date:</strong></td>
+                </tr>
+                <tr>
+                    <td style="width: 50%;"><strong>From:</strong><br>
+                        Trackoworld<br>
+                        1, 96/1, Ambika Towers, Hosur Road<br>
+                        HAL Layout Singasandra<br>
+                        Bengaluru-560068, Karnataka<br>
+                        GST/UIN: - 29AIVPP0151C1Z6<br>
+                        Contact: - 9886464599
+                    </td>
+                    <td style="width: 50%;"><strong>To:</strong></td>
+                </tr>
+            </table>
+            
+            
+            <section class="DC-details">
+                <table id="DCTable">
+                    <tr>
+                        <th>Sl.No</th>
+                        <th class="des">Description</th>
+                        <th>HSN/SAC</th>
+                        <th>Qty</th>
+                        <th>Per unit Rate</th>
+                        <th>Amount</th>
+                    </tr>
+                </table>
+                <table class="transaction-note">
+                    <tr>
+                        <td colspan="2"><strong>Mode of Transportation:</strong></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">There is no commercial or consideration involved in this transaction. Goods sent to customer/consigner on account of:</td>
+                    </tr>
+                </table>
+        
+                <table class="goods-reason">
+                    <tr>
+                        <td><input type="checkbox"> Goods damaged in transit</td>
+                        <td><input type="checkbox"> Repair and services</td>
+                        <td><input type="checkbox"> Job work</td>
+                        <td><input type="checkbox"> Any other issues</td>
+                    </tr>
+                </table>
+        
+                <table class="acknowledgment" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                    <tr>
+                        <td colspan="2" style="text-align:left;"><strong>Acknowledgment</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="width: 50%; padding: 20px; text-align: center; vertical-align: top;">
+                            Received the above in good condition.
+                        </td>
+                        <td style="width: 50%; padding: 20px; text-align: center; vertical-align: top;">
+                            For Trackoworld<br><br><br><br>
+                            Authorized Signature:
+                        </td>
+                    </tr>
+                </table>
+                
+            </section>
+        </div>
+    </div>
+    
+    <!-- Buttons positioned outside the container -->
+    <div>
+        <button class="print-button" id="printButton">Print</button>
+        <button class="excel-button" id="excelButton">Download as Excel</button>
+        <button class="pdf-button" id="pdfButton">Download as PDF</button>
+        <button class="create-button" id="createDCButton">Create DC</button>
+    </div>
+    
+    <!-- Modal for customer selection -->
+    <div id="customerSelectionForm" class="modal">
+        <div class="modal-content">
+            <h2>Create DC</h2>
+            <form id="item-form">
+                <label for="date">Date:</label>
+                <input type="date" id="date" required>
+                
+                <label for="to">To:</label>
+                <input type="text" id="to" required>
+                
+                <label for="mode-transportation">Mode of Transportation:</label>
+                <select id="mode-transportation" required>
+                    <option value="air">Air</option>
+                    <option value="sea">Sea</option>
+                    <option value="road">Road</option>
+                </select>
+                <h3>Items</h3>
+                <div id="itemRows"></div>
+                <button type="button" onclick="addItemRow()">Add Item Row</button><br><br>
+    
+                <button type="submit">Submit</button>
+                <button type="button" class="close" onclick="closeModal()">Close</button>
+            </form>
+        </div>
+    </div>
+
+
+    
+    <script>
+        $(document).ready(function () {
+            // Show the modal on button click
+            $('#createDCButton').on('click', function () {
+                $('#customerSelectionForm').show(); // Show the customer selection form
+                // Ensure there's at least one item row when modal opens
+                if ($('.item-row').length === 0) {
+                    addItemRow();
+                }
+            });
+        
+            // Handle form submission
+            $('#item-form').on('submit', function (e) {
+                e.preventDefault(); // Prevent the form from submitting normally
+        
+                // Extract form data
+                const date = $('#date').val();
+                const to = $('#to').val();
+                const modeOfTransportation = $('#mode-transportation').val();
+        
+                // Validate mandatory fields
+                if (!date || !to || !modeOfTransportation) {
+                    alert('Please fill out all mandatory fields.');
+                    return;
+                }
+        
+                // Generate auto DC number (simple logic, customize as needed)
+                const dcNumber = `DC${Date.now()}`;
+        
+                // Update the details table with DC number, date, and to address
+                $('.details').html(`
+                    <tr>
+                        <td><strong>DC No:</strong> ${dcNumber}</td>
+                        <td><strong>Date:</strong> ${date}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>From:</strong> Trackoworld</td>
+                        <td><strong>To:</strong> ${to}</td>
+                    </tr>
+                `);
+        
+                // Update the transaction-note section with mode of transportation
+                $('.transaction-note').html(`
+                    <tr>
+                        <td colspan="2"><strong>Mode of Transportation:</strong> ${modeOfTransportation}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">There is no commercial or consideration involved in this transaction. Goods sent to customer/consigner on account of:</td>
+                    </tr>
+                `);
+        
+                // Clear existing rows in the DC table (except headers)
+                $('#DCTable tr:gt(0)').remove();
+        
+                // Add each item row to the table
+                let hasValidRows = false; // Check if any valid rows were added
+                $('.item-row').each(function (index) {
+                    const description = $(this).find('input[name="item_description[]"]').val();
+                    const hsn = $(this).find('input[name="item_hsn[]"]').val();
+                    const quantity = $(this).find('input[name="item_quantity[]"]').val();
+                    const price = $(this).find('input[name="item_price[]"]').val();
+        
+                    if (description && hsn && quantity && price) {
+                        const amount = (quantity * price).toFixed(2);
+                        $('#DCTable').append(`
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${description}</td>
+                                <td>${hsn}</td>
+                                <td>${quantity}</td>
+                                <td>${price}</td>
+                                <td>${amount}</td>
+                            </tr>
+                        `);
+                        hasValidRows = true;
+                    }
+                });
+        
+                if (!hasValidRows) {
+                    alert('Please add at least one valid item.');
+                    return;
+                }
+        
+                // Recalculate totals
+                recalculateTotals();
+        
+                // Close the modal
+                closeModal();
+            });
+        });
+        
+        // Function to recalculate totals
+        function recalculateTotals() {
+            let total = 0;
+        
+            $('#DCTable tr:gt(0)').each(function () {
+                const amount = parseFloat($(this).find('td:last').text());
+                total += isNaN(amount) ? 0 : amount;
+            });
+        
+            // Show the total in a summary row (if applicable)
+            if ($('#totalAmount').length === 0) {
+                $('#DCTable').append(`
+                    <tr>
+                        <td colspan="5" style="text-align: right;"><strong>Total:</strong></td>
+                        <td id="totalAmount"></td>
+                    </tr>
+                `);
+            }
+        
+            $('#totalAmount').text(total.toFixed(2));
+        }
+        
+        // Add new item row to the modal
+        function addItemRow() {
+            const itemRow = `
+                <div class="item-row">
+                    <input type="text" name="item_description[]" placeholder="Description" required>
+                    <input type="text" name="item_hsn[]" placeholder="HSN" required>
+                    <input type="number" name="item_quantity[]" placeholder="Quantity" required>
+                    <input type="number" name="item_price[]" placeholder="Price per Unit" required>
+                    <button type="button" onclick="removeItemRow(this)">Remove</button>
+                </div>
+            `;
+            $('#itemRows').append(itemRow);
+        }
+        
+        // Remove an item row from the modal
+        function removeItemRow(button) {
+            $(button).closest('.item-row').remove();
+        }
+        
+        // Close the modal
+        function closeModal() {
+            $('#customerSelectionForm').hide();
+        }
+        $("#printButton").on("click" , function (){
+
+            window.print();
+   
+           });
+   
+           $('#excelButton').on('click', function () {
+               var wb = XLSX.utils.book_new();
+               var container = document.querySelector('.container'); // The entire quotation container
+               
+               // Convert the entire container content into a worksheet
+               var ws = XLSX.utils.table_to_sheet(container);
+           
+               // Define a border style for the cells (this will give an outline to the content)
+               var borderStyle = {
+                   top: { style: 'thick' },
+                   left: { style: 'thick' },
+                   bottom: { style: 'thick' },
+                   right: { style: 'thick' }
+               };
+               
+               // Apply borders to all the cells in the worksheet
+               for (var row = 0; row < ws['!rows'].length; row++) {
+                   for (var col = 0; col < ws['!cols'].length; col++) {
+                       var cellAddress = XLSX.utils.encode_cell({r: row, c: col});
+                       if (ws[cellAddress]) {
+                           if (!ws[cellAddress].s) {
+                               ws[cellAddress].s = {};  // Initialize the cell style if it's not defined
+                           }
+                           ws[cellAddress].s.border = borderStyle; // Add border to the cell
+                       }
+                   }
+               }
+           
+               // Append the worksheet to the workbook
+               XLSX.utils.book_append_sheet(wb, ws, "Quotation");
+           
+               // Generate and download the Excel file with borders (outline)
+               XLSX.writeFile(wb, "Quotation.xlsx");
+           });
+           $('#pdfButton').on('click', function () {
+               var element = document.querySelector('.container'); // The entire quotation container
+               var opt = {
+                   margin:       0.2, // Adjusted to reduce margin and make the content fill more space
+                   filename:     'Quotation.pdf',
+                   image:        { type: 'jpeg', quality: 0.98 },
+                   html2canvas:  { scale: 2, dpi: 300 }, // Increased scale and added DPI for sharper images
+                   jsPDF:        { 
+                       unit: 'in', 
+                       format: 'letter', 
+                       orientation: 'portrait',
+                       compress: true,  // This can help avoid the content being compressed in the middle
+                       putOnlyUsedFonts: true, // Use only the fonts actually needed
+                   }
+               };
+               html2pdf().from(element).set(opt).save();
+           });
+           
+    
+    </script>
+</body>
+</html>
+
+{% endblock %}

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Create Hardware Test Report</title>
+
+
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 20px;
+            }
+            h2 {
+                text-align: center;
+                color: #333;
+            }
+            form {
+                max-width: 800px;
+                margin: auto;
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            }
+            h3 {
+                border-bottom: 2px solid #007bff;
+                padding-bottom: 5px;
+                color: #007bff;
+            }
+            label {
+                font-weight: bold;
+                margin-top: 10px;
+                display: block;
+            }
+            input, select, textarea {
+                width: 100%;
+                padding: 8px;
+                margin-top: 5px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                font-size: 14px;
+            }
+            textarea {
+                resize: vertical;
+                min-height: 60px;
+            }
+            button {
+                background-color: #007bff;
+                color: white;
+                border: none;
+                padding: 10px 15px;
+                margin-top: 10px;
+                cursor: pointer;
+                font-size: 16px;
+                border-radius: 5px;
+                display: block;
+                width: 100%;
+            }
+            button:hover {
+                background-color: #0056b3;
+            }
+            #test-cases div {
+                background: #f9f9f9;
+                padding: 15px;
+                border-radius: 5px;
+                margin-top: 10px;
+            }
+            #test-cases h4 {
+                color: #333;
+            }
+        </style>
+        
+    <script>
+        let testCaseCount = 1;
+
+        function addTestCase() {
+            testCaseCount++;
+            let testCasesDiv = document.getElementById("test-cases");
+            let newTestCase = `
+                <div id="test-case-${testCaseCount}">
+                    <h4>Test Case ${testCaseCount}</h4>
+                    <label>Test Case No:</label>
+                    <input type="number" name="test_case_no_${testCaseCount}" required><br>
+                    <label>Description:</label>
+                    <input type="text" name="test_description_${testCaseCount}" required><br>
+                    <label>Expected Outcome:</label>
+                    <input type="text" name="expected_outcome_${testCaseCount}" required><br>
+                    <label>Actual Outcome:</label>
+                    <input type="text" name="actual_outcome_${testCaseCount}" required><br>
+                    <label>Status:</label>
+                    <select name="status_${testCaseCount}">
+                        <option value="Pass">Pass</option>
+                        <option value="Fail">Fail</option>
+                    </select><br>
+                </div>
+            `;
+            testCasesDiv.insertAdjacentHTML("beforeend", newTestCase);
+            document.getElementById("test_cases_count").value = testCaseCount;
+        }
+    </script>
+</head>
+<body>
+    <h2>Create Hardware Test Report</h2>
+    <form method="post">
+        {% csrf_token %}
+        
+        <h3>Report Details</h3>
+        <label>Project Name:</label>
+        <input type="text" name="project_name" required><br>
+
+        <label>Test Date:</label>
+        <input type="date" name="test_date" required><br>
+
+        <label>Tested By:</label>
+        <input type="text" name="tested_by" required><br>
+
+        <h3>Test Environment</h3>
+        <label>Hardware Version:</label>
+        <input type="text" name="hardware_version"><br>
+
+        <label>Firmware Version:</label>
+        <input type="text" name="firmware_version"><br>
+
+        <label>Test Equipment Used:</label>
+        <textarea name="test_equipment_used"></textarea><br>
+
+        <label>Operating Conditions:</label>
+        <textarea name="operating_conditions"></textarea><br>
+
+        <h3>Test Cases</h3>
+        <input type="hidden" id="test_cases_count" name="test_cases_count" value="1">
+        <div id="test-cases">
+            <div id="test-case-1">
+                <h4>Test Case 1</h4>
+                <label>Test Case No:</label>
+                <input type="number" name="test_case_no_1" required><br>
+                <label>Description:</label>
+                <input type="text" name="test_description_1" required><br>
+                <label>Expected Outcome:</label>
+                <input type="text" name="expected_outcome_1" required><br>
+                <label>Actual Outcome:</label>
+                <input type="text" name="actual_outcome_1" required><br>
+                <label>Status:</label>
+                <select name="status_1">
+                    <option value="Pass">Pass</option>
+                    <option value="Fail">Fail</option>
+                </select><br>
+            </div>
+        </div>
+        <button type="button" onclick="addTestCase()">Add Test Case</button>
+
+        <h3>Issues & Observations</h3>
+        <label>Issue Description:</label>
+        <textarea name="issue_description"></textarea><br>
+
+        <label>Suggested Resolution:</label>
+        <textarea name="suggested_resolution"></textarea><br>
+
+        <h3>Conclusion & Recommendations</h3>
+        <label>Summary:</label>
+        <textarea name="summary"></textarea><br>
+
+        <label>Next Steps:</label>
+        <textarea name="next_steps"></textarea><br>
+
+        <label>Approved By:</label>
+        <input type="text" name="approved_by"><br>
+
+        <label>Approval Date:</label>
+        <input type="date" name="approval_date"><br>
+
+        <button type="submit">Save Report</button>
+    </form>
+</body>
+</html>

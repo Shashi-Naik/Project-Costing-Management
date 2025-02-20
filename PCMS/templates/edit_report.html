@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Edit Hardware Test Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+            padding: 20px;
+        }
+        h2, h3 {
+            color: #333;
+        }
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h2>Edit Hardware Test Report</h2>
+    <form method="post">
+        {% csrf_token %}
+        
+        <h3>Report Details</h3>
+        <label>Project Name:</label>
+        <input type="text" name="project_name" value="{{ report.project_name }}" required>
+
+        <label>Test Date:</label>
+        <input type="date" name="test_date" value="{{ report.test_date }}" required>
+
+        <label>Tested By:</label>
+        <input type="text" name="tested_by" value="{{ report.tested_by }}" required>
+
+        <h3>Test Environment</h3>
+        {% with environment=report.environment.first %}
+            <label>Hardware Version:</label>
+            <input type="text" name="hardware_version" value="{{ environment.hardware_version }}">
+
+            <label>Firmware Version:</label>
+            <input type="text" name="firmware_version" value="{{ environment.firmware_version }}">
+
+            <label>Test Equipment Used:</label>
+            <textarea name="test_equipment_used">{{ environment.test_equipment_used }}</textarea>
+
+            <label>Operating Conditions:</label>
+            <textarea name="operating_conditions">{{ environment.operating_conditions }}</textarea>
+        {% endwith %}
+
+        <h3>Test Cases</h3>
+        {% for case in report.test_cases.all %}
+        <div>
+            <label>Test Case No:</label>
+            <input type="number" name="test_case_no_{{ forloop.counter }}" value="{{ case.test_case_no }}" required>
+            <label>Description:</label>
+            <input type="text" name="test_description_{{ forloop.counter }}" value="{{ case.test_description }}" required>
+            <label>Expected Outcome:</label>
+            <input type="text" name="expected_outcome_{{ forloop.counter }}" value="{{ case.expected_outcome }}" required>
+            <label>Actual Outcome:</label>
+            <input type="text" name="actual_outcome_{{ forloop.counter }}" value="{{ case.actual_outcome }}" required>
+            <label>Status:</label>
+            <select name="status_{{ forloop.counter }}">
+                <option value="Pass" {% if case.status == "Pass" %}selected{% endif %}>Pass</option>
+                <option value="Fail" {% if case.status == "Fail" %}selected{% endif %}>Fail</option>
+            </select>
+        </div>
+        {% endfor %}
+
+        <h3>Issues & Observations</h3>
+        {% with issue=report.issues.first %}
+            <label>Issue Description:</label>
+            <textarea name="issue_description">{{ issue.issue_description }}</textarea>
+
+            <label>Suggested Resolution:</label>
+            <textarea name="suggested_resolution">{{ issue.suggested_resolution }}</textarea>
+        {% endwith %}
+
+        <h3>Conclusion & Recommendations</h3>
+        {% with conclusion=report.conclusion.first %}
+            <label>Summary:</label>
+            <textarea name="summary">{{ conclusion.summary }}</textarea>
+
+            <label>Next Steps:</label>
+            <textarea name="next_steps">{{ conclusion.next_steps }}</textarea>
+
+            <label>Approved By:</label>
+            <input type="text" name="approved_by" value="{{ conclusion.approved_by }}">
+
+            <label>Approval Date:</label>
+            <input type="date" name="approval_date" value="{{ conclusion.approval_date }}">
+        {% endwith %}
+
+        <button type="submit">Update Report</button>
+    </form>
+</body>
+</html>

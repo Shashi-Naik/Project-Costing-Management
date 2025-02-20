@@ -1,0 +1,448 @@
+           
+           {% extends 'base.html' %}
+
+           {% block body %}
+           <!DOCTYPE html>
+           <html lang="en">
+           <head>
+               <meta charset="UTF-8">
+               <meta name="viewport" content="width=device-width, initial-scale=1.0">
+               <title>Upload to Folder</title>
+               <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+               <style>
+                     
+              
+                
+                body {
+                    font-family: 'Arial', sans-serif;
+                    background-color: #f1f3f6;
+                    display: flex;
+                    color: #333;
+                }
+                        .sidebar {
+                            width: 250px;
+                            background:rgb(70, 150, 136);
+                            color: white;
+                            padding: 20px;
+                            height: 100vh;
+                            overflow-y: auto;
+                        }
+                        .sidebar h2 {
+                            text-align: center;
+                            border-bottom: 2px solid #ecf0f1;
+                            padding-bottom: 10px;
+                        }
+                        .sidebar button {
+                            background: #1abc9c;
+                            color: white;
+                            border: none;
+                            padding: 10px;
+                            width: 100%;
+                            margin-bottom: 10px;
+                            cursor: pointer;
+                            font-size: 16px;
+                        }
+                        .sidebar button:hover {
+                            background: #16a085;
+                        }
+                        .tree {
+                            list-style: none;
+                            padding: 0;
+                        }
+                        .tree li {
+                            padding: 8px;
+                            cursor: pointer;
+                        }
+                        .tree li:hover {
+                            background:rgb(14, 148, 130);
+                        }
+                        .content1 {
+                            flex-grow: 1;
+                            padding: 20px;
+                        }
+                        h1 {
+                            text-align: center;
+                            color: #333;
+                        }
+                        .container1 {
+                            display: flex;
+                            gap: 20px;
+                        }
+                        .left {
+                            flex: 1;
+                            background: white;
+                            padding: 20px;
+                            border-radius: 8px;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                        }
+                        .right {
+                            flex: 2;
+                            background: white;
+                            padding: 20px;
+                            border-radius: 8px;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                        }
+                        input[type="file"], input[type="text"] {
+                            width: 100%;
+                            padding: 10px;
+                            margin: 10px 0;
+                            border: 1px solid #ccc;
+                            border-radius: 5px;
+                        }
+                        button {
+                            background: #2980b9;
+                            color: white;
+                            padding: 10px 15px;
+                            border: none;
+                            cursor: pointer;
+                            font-size: 16px;
+                            width: 100%;
+                            border-radius: 5px;
+                        }
+                        button:hover {
+                            background: #1f6692;
+                        }
+                        #table-section {
+                            margin-top: 20px;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 10px;
+                            background: white;
+                        }
+                        th, td {
+                            border: 1px solid #ddd;
+                            padding: 10px;
+                            text-align: left;
+                        }
+                        th {
+                            background: #2980b9;
+                            color: white;
+                        }
+                        .alert {
+                            padding: 10px;
+                            color: white;
+                            border-radius: 5px;
+                            margin-bottom: 10px;
+                        }
+                        .alert-success {
+                            background: #2ecc71;
+                        }
+                        .alert-danger {
+                            background: #e74c3c;
+                        }
+               </style>
+               
+           </head>
+           <body>
+               <div class="sidebar">
+                   <div>
+                       <form action="{% url 'sch' %}" method="GET">
+                           <button type="submit">Create Folder</button>
+                       </form>
+                   </div>
+                   <h2>Folders</h2>
+                   <ul class="tree">
+                       {% for folder in parent_folders %}
+                           <li>
+                               <label data-folder="{{ folder }}">
+                                   <i class="fas fa-folder"></i> {{ folder }}
+                               </label>
+                           </li>
+                       {% endfor %}
+                   </ul>
+               </div>
+               
+               <div class="content1"> 
+                   <h1>P C B</h1>
+                   <div class="container1">
+                       <div class="left">
+                           <div id="file-upload-section">
+                               <h4>Select a folder and upload a file</h4>
+                               <div class="selected-folder-display" id="selected-folder-display">No folder selected</div>
+                               
+                               <form id="upload-form" method="post" enctype="multipart/form-data">
+                                   {% csrf_token %}
+                                   <input type="hidden" id="selected-folder" name="selected_folder">
+                                   <input type="hidden" name="action" value="upload_file">  <!-- Added hidden action field -->
+                                   
+                                   <input type="file" name="upload_file" required> <!-- Ensure name matches views.py -->
+                                   <button type="submit">Upload File</button>
+                               </form>
+                           </div>
+                       
+                           <!-- Add Folder Section -->
+                           <form id="create-folder-form" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="add_folder">
+                            <input type="hidden" id="selected-folder" name="selected_folder">
+                            <input type="text" id="new-folder-name" name="new_folder_name" placeholder="Enter folder name" required>
+                            <button type="submit" id="create-folder-btn">Add Folder</button>
+                            <p id="folder-message"></p>
+                        </form>
+                        
+                           {% if messages %}
+               {% for message in messages %}
+                   <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+               {% endfor %}
+           {% endif %}
+           
+                           
+                       </div>
+               
+                       <div class="right">
+                           <div id="file-display-section" style="margin-top: 30px; display: flex; flex-wrap: wrap;"></div>
+                       </div>
+                   </div>
+           
+                   <div id="table-section">
+                       <h3>Project Data</h3>
+                       <table>
+                           <thead>
+                               <tr>
+                                   <th>Project ID</th>
+                                   <th>Project Name</th>
+                                   <th>PCB Name</th>
+                                   <th>pcb ID</th>
+                                   <th>Path</th>
+                                   <th>Remarks</th>
+                               </tr>
+                           </thead>
+                           <tbody>
+                               {% for project in projects %}
+                                   <tr>
+                                       <td>{{ project.ProjectId }}</td>
+                                       <td>{{ project.ProjectName }}</td>
+                                       <td>{{ project.PCBName }}</td>
+                                       <td>{{ project.PCBId }}</td>
+                                       <td>{{ project.Path }}</td>
+                                       <td>{{ project.Reamrks }}</td>
+                                   </tr>
+                               {% endfor %}
+                           </tbody>
+                       </table>
+                   </div>
+           
+               </div>
+           
+           
+                  
+                   <div id="file-display-section" style="margin-top: 30px; display: flex; flex-wrap: wrap;">
+                       
+                   </div>
+           
+           
+                   
+                   
+                   
+               </div>
+               
+           </body>
+           <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const selectedFolderDisplay = document.getElementById('selected-folder-display');
+                const fileDisplaySection = document.getElementById('file-display-section');
+            
+                // Function to fetch child folders and files when a folder is clicked
+                const fetchChildFoldersAndFiles = (parentFolder, liElement) => {
+                    fetch(`/upload_to_folder_pcb/?parent_folder=${parentFolder}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            let ul = liElement.querySelector('ul');
+            
+                            // If ul already exists, clear it to avoid duplication
+                            if (ul) {
+                                ul.innerHTML = '';
+                            } else {
+                                ul = document.createElement('ul');
+                                liElement.appendChild(ul);
+                            }
+            
+                            // Populate child folders
+                            for (const [folder, subFolders] of Object.entries(data.folders)) {
+                                const li = document.createElement('li');
+                                li.innerHTML = `
+                                    <label data-folder="${parentFolder}/${folder}">
+                                        <i class="fas fa-folder"></i> ${folder}
+                                    </label>
+                                    <ul class="sub-folder-list"></ul>
+                                `;
+                                ul.appendChild(li);
+            
+                                li.querySelector('label').addEventListener('click', (event) => {
+                                    event.stopPropagation(); 
+                                    const clickedLabel = event.target.closest('label');
+                                    const subFolder = clickedLabel.getAttribute('data-folder');
+                                    const parentLi = clickedLabel.parentElement;
+                                    const subFolderList = parentLi.querySelector('.sub-folder-list');
+            
+                                    if (parentLi.classList.contains('expanded')) {
+                                        subFolderList.innerHTML = ''; 
+                                        parentLi.classList.remove('expanded');
+                                    } else {
+                                        parentLi.classList.add('expanded');
+                                        fetchChildFoldersAndFiles(subFolder, subFolderList);
+                                    }
+            
+                                    selectedFolderDisplay.textContent = `Selected Folder: ${subFolder}`;
+                                    document.getElementById('selected-folder').value = subFolder;
+                                });
+                            }
+            
+                            // Update file display
+                            displayFiles(data.files || []);
+                        })
+                        .catch(error => console.error('Error fetching child folders and files:', error));
+                };
+            
+                // Function to display files
+                const displayFiles = (files) => {
+                    fileDisplaySection.innerHTML = '';
+                    files.forEach(file => {
+                        const fileIcon = document.createElement('div');
+                        fileIcon.classList.add('file-icon');
+                        fileIcon.innerHTML = `
+                            <i class="fas fa-file"></i>
+                            <span>${file}</span>`;
+                        fileDisplaySection.appendChild(fileIcon);
+                    });
+                };
+            
+                // Handle folder selection
+                document.querySelectorAll('.tree label').forEach(label => {
+                    label.addEventListener('click', (event) => {
+                        const clickedLabel = event.target.closest('label');
+                        const folder = clickedLabel.getAttribute('data-folder');
+                        const parentLi = clickedLabel.parentElement;
+            
+                        parentLi.classList.toggle('expanded');
+            
+                        if (!parentLi.querySelector('ul')) {
+                            fetchChildFoldersAndFiles(folder, parentLi);
+                        }
+            
+                        selectedFolderDisplay.textContent = `Selected Folder: ${folder}`;
+                        document.getElementById('selected-folder').value = folder;
+                    });
+                });
+            
+                // Handle folder creation
+                document.getElementById("create-folder-btn").addEventListener("click", function() {
+                    var folderName = document.getElementById("new-folder-name").value.trim();
+                    var selectedFolder = document.getElementById("selected-folder").value;
+                    var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+                    if (!folderName) {
+                        document.getElementById("folder-message").innerText = "Folder name is required!";
+                        return;
+                    }
+            
+                    fetch("", {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": csrfToken,
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: new URLSearchParams({
+                            action: "add_folder",
+                            new_folder_name: folderName,
+                            selected_folder: selectedFolder
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById("folder-message").innerText = data.message || data.error;
+                        if (data.message) {
+                            document.getElementById("new-folder-name").value = "";
+                            setTimeout(() => location.reload(), 1000);
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+                });
+            
+                // Prevent file upload without selecting a folder
+                document.getElementById("upload-form").addEventListener("submit", function(event) {
+                    let selectedFolder = document.getElementById("selected-folder").value;
+                    if (!selectedFolder) {
+                        alert("Please select a folder before uploading.");
+                        event.preventDefault();
+                    }
+                });
+            
+                // Populate table data dynamically
+                const tableBody = document.querySelector('tbody');
+            
+                const projectData = {};
+                tableBody.querySelectorAll('tr').forEach(row => {
+                    const projectId = row.cells[0].textContent.trim();
+                    const projectName = row.cells[1].textContent.trim();
+                    const schName = row.cells[2].textContent.trim();
+                    const schId = row.cells[3].textContent.trim();
+                    const path = row.cells[4].textContent.trim();
+                    const remarks = row.cells[5].textContent.trim();
+            
+                    if (!projectData[projectId]) {
+                        projectData[projectId] = {
+                            projectName: projectName,
+                            schName: schName,
+                            schId: schId,
+                            paths: [],
+                            remarks: remarks
+                        };
+                    }
+                    projectData[projectId].paths.push(path);
+                });
+            
+                tableBody.innerHTML = '';
+            
+                Object.entries(projectData).forEach(([projectId, projectInfo]) => {
+                    const row = document.createElement('tr');
+            
+                    const projectIdCell = document.createElement('td');
+                    projectIdCell.textContent = projectId;
+                    row.appendChild(projectIdCell);
+            
+                    const projectNameCell = document.createElement('td');
+                    projectNameCell.textContent = projectInfo.projectName;
+                    row.appendChild(projectNameCell);
+            
+                    const schNameCell = document.createElement('td');
+                    schNameCell.textContent = projectInfo.schName;
+                    row.appendChild(schNameCell);
+            
+                    const schIdCell = document.createElement('td');
+                    schIdCell.textContent = projectInfo.schId;
+                    row.appendChild(schIdCell);
+            
+                    const pathCell = document.createElement('td');
+                    const pathDropdown = document.createElement('select');
+                    pathDropdown.style.width = '100%';
+                    pathDropdown.style.padding = '5px';
+            
+                    projectInfo.paths.forEach(path => {
+                        const option = document.createElement('option');
+                        option.textContent = path;
+                        option.value = path;
+                        pathDropdown.appendChild(option);
+                    });
+            
+                    pathCell.appendChild(pathDropdown);
+                    row.appendChild(pathCell);
+            
+                    const remarksCell = document.createElement('td');
+                    remarksCell.textContent = projectInfo.remarks;
+                    row.appendChild(remarksCell);
+            
+                    tableBody.appendChild(row);
+                });
+            });
+            
+               
+               
+           </script>
+           </html>
+           {% endblock %}
+           
+           
+           

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Report Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+            padding: 20px;
+        }
+        h2, h3 {
+            color: #333;
+        }
+        p {
+            background: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <h2>Report: {{ report.project_name }}</h2>
+    <p><strong>Test Date:</strong> {{ report.test_date }}</p>
+    <p><strong>Tested By:</strong> {{ report.tested_by }}</p>
+
+    <h3>Test Environment</h3>
+    {% for env in report.environment.all %}
+        <p><strong>Hardware Version:</strong> {{ env.hardware_version }}</p>
+        <p><strong>Firmware Version:</strong> {{ env.firmware_version }}</p>
+        <p><strong>Test Equipment:</strong> {{ env.test_equipment_used }}</p>
+        <p><strong>Operating Conditions:</strong> {{ env.operating_conditions }}</p>
+    {% endfor %}
+
+    <h3>Test Cases</h3>
+    <table>
+        <tr><th>No.</th><th>Description</th><th>Expected</th><th>Actual</th><th>Status</th></tr>
+        {% for case in report.test_cases.all %}
+        <tr>
+            <td>{{ case.test_case_no }}</td>
+            <td>{{ case.test_description }}</td>
+            <td>{{ case.expected_outcome }}</td>
+            <td>{{ case.actual_outcome }}</td>
+            <td>{{ case.status }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h3>Issues & Observations</h3>
+    {% for issue in report.issues.all %}
+        <p><strong>Issue:</strong> {{ issue.issue_description }}</p>
+        <p><strong>Resolution:</strong> {{ issue.suggested_resolution }}</p>
+    {% endfor %}
+
+    <h3>Conclusion & Recommendations</h3>
+    {% for conclusion in report.conclusion.all %}
+        <p><strong>Summary:</strong> {{ conclusion.summary }}</p>
+        <p><strong>Next Steps:</strong> {{ conclusion.next_steps }}</p>
+        <p><strong>Approved By:</strong> {{ conclusion.approved_by }} on {{ conclusion.approval_date }}</p>
+    {% endfor %}
+</body>
+</html>

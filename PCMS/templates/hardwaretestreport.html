@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Report Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        
+        form {
+            max-width: 700px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+        
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        textarea {
+            resize: vertical;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: #fff;
+        }
+        
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background: #007bff;
+            color: white;
+            text-align: center;
+        }
+        
+        button {
+            padding: 10px 15px;
+            margin-top: 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            display: block;
+            width: 100%;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        .remove-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .remove-btn:hover {
+            background: darkred;
+        }
+        
+        #issuesList {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        #issuesList li {
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            form {
+                width: 90%;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+
+    <h2>Test Report Generator</h2>
+    <form id="hardwareTestForm" method="POST">
+    
+        <label for="projectName">Project Name:</label>
+        <input type="text" id="projectName" >
+
+        <label for="testDate">Test Date:</label>
+        <input type="date" id="testDate" >
+
+        <label for="testedBy">Tested By:</label>
+        <input type="text" id="testedBy" >
+
+        <label for="objective">Objective:</label>
+        <input type="text" id="objective" >
+
+        <label for="hardwareVersion">Hardware Version:</label>
+        <input type="text" id="hardwareVersion">
+
+        <label for="firmwareVersion">Firmware Version:</label>
+        <input type="text" id="firmwareVersion">
+
+        <label for="testEquipment">Test Equipment Used:</label>
+        <input type="text" id="testEquipment">
+
+        <label for="operatingConditions">Operating Conditions:</label>
+        <input type="text" id="operatingConditions">
+
+        <h3>Test Cases & Results</h3>
+        <table id="testTable">
+           
+            <tr>
+                <th>Test Case No.</th>
+                <th>Test Description</th>
+                <th>Expected Outcome</th>
+                <th>Actual Outcome</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+           
+        </table>
+        <button type="button" onclick="addRow()">Add Test Case</button>
+
+        <h3>Issues & Observations</h3>
+        <ul id="issuesList"></ul>
+        <button type="button" onclick="addIssue()">Add Issue</button>
+
+        <h3>Conclusion & Recommendations</h3>
+        <textarea id="conclusion" rows="4"></textarea>
+
+        <h3>Next Steps</h3>
+<label for="suggestedFixes">Suggested Fixes or Retests:</label>
+<input type="text" id="suggestedFixes">
+
+<label for="additionalTests">Additional Tests Needed:</label>
+<input type="text" id="additionalTests">
+
+<label for="approvalStatus">Final Approval Status:</label>
+<input type="text" id="approvalStatus">
+
+<label for="approverName">Approved By:</label>
+<input type="text" id="approverName">
+
+<label for="approvalDate">Date of Approval:</label>
+<input type="date" id="approvalDate">
+
+        <button type="button" onclick="generatePDF()">Generate Report</button>
+    </form>
+
+    <script>
+        function addRow() {
+            let table = document.getElementById("testTable");
+            let row = table.insertRow();
+            
+            // Update the serial number (SL No.) in the first cell
+            let slNoCell = row.insertCell(0); 
+            slNoCell.textContent = table.rows.length - 1; // Subtract 1 to exclude the header row
+        
+            // Add input fields for the remaining columns
+            for (let i = 1; i < 5; i++) {
+                let cell = row.insertCell(i);
+                let input = document.createElement("input");
+                input.type = "text";
+                cell.appendChild(input);
+            }
+        
+            // Add a remove button in the last column
+            let actionCell = row.insertCell(5);
+            let removeButton = document.createElement("button");
+            removeButton.textContent = "Remove";
+            removeButton.className = "remove-btn";
+            removeButton.onclick = function () {
+                table.deleteRow(row.rowIndex);
+                updateSerialNumbers(); // Update serial numbers after row removal
+            };
+            actionCell.appendChild(removeButton);
+        }
+        
+        // Function to update serial numbers (SL No.) when rows are added or removed
+        function updateSerialNumbers() {
+            let table = document.getElementById("testTable");
+            // Loop through all rows and update the SL No. based on the row index (excluding the header row)
+            for (let i = 1; i < table.rows.length; i++) {
+                table.rows[i].cells[0].textContent = i; // Update the SL No. (1-based index)
+            }
+        }
+    
+        function addIssue() {
+            let issuesList = document.getElementById("issuesList");
+            let li = document.createElement("li");
+            li.innerHTML = `<input type="text"> <button type="button" onclick="removeIssue(this)">Remove</button>`;
+            issuesList.appendChild(li);
+        }
+        
+        function removeIssue(button) {
+            button.parentElement.remove();
+        }
+
+        
+/*====================================================================================================*/
+
+
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            let pageHeight = doc.internal.pageSize.height;
+            let pageWidth = doc.internal.pageSize.width;
+            let currentPage = 1;
+        
+            // Get form values
+            const projectName = document.getElementById("projectName").value;
+            const testDate = document.getElementById("testDate").value;
+            const testedBy = document.getElementById("testedBy").value;
+            const objective = document.getElementById("objective").value;
+            const hardwareVersion = document.getElementById("hardwareVersion").value;
+            const firmwareVersion = document.getElementById("firmwareVersion").value;
+            const testEquipment = document.getElementById("testEquipment").value;
+            const operatingConditions = document.getElementById("operatingConditions").value;
+            const conclusion = document.getElementById("conclusion").value;
+        
+            function addHeaderFooter() {
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(10);
+                let headerY = 20;
+                let lineY = 25;
+        
+                doc.text("Trackoworld", 15, headerY);
+                doc.text(projectName, pageWidth - 15 - doc.getTextWidth(projectName), headerY);
+                doc.line(10, lineY, pageWidth - 10, lineY);
+                doc.text(`Page ${currentPage}`, pageWidth - 30, pageHeight - 10);
+            }
+        
+            function addNewPage() {
+                doc.addPage();
+                currentPage++;
+                addHeaderFooter();
+            }
+        
+            // **Title Page**
+            addHeaderFooter();
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.text(projectName, 105, 50, { align: "center" });
+            doc.setFontSize(14);
+            doc.text("Test Report", 105, 70, { align: "center" });
+            doc.setFont("helvetica", "normal");
+            doc.text(`Test Date: ${testDate}`, 105, 90, { align: "center" });
+            doc.text(`Tested By: ${testedBy}`, 105, 110, { align: "center" });
+        
+            addNewPage();
+        
+            // **Table of Contents**
+            doc.setFontSize(18);
+            doc.setFont("helvetica", "bold");
+            doc.text("Table of Contents", 105, 35, { align: "center" });
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "normal");
+            let tocItems = [
+                "1. Test Overview",
+                "2. Test Cases & Results",
+                "3. Issues & Observations",
+                "4. Conclusion & Recommendations"
+            ];
+            let y = 50;
+            tocItems.forEach((item) => {
+                doc.text(item, 20, y);
+                y += 8;
+            });
+        
+            addNewPage();
+        
+           // Test Overview
+y = 39;
+doc.setFontSize(14);
+doc.setFont("helvetica", "bold");
+doc.text("Test Overview", 15, y);
+doc.setFontSize(10);
+y += 8;
+
+function addBoldText(label, text, x, y) {
+    doc.setFont("helvetica", "bold");
+    doc.text(label, x, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(text, x + doc.getTextWidth(label) + 2, y);
+}
+
+addBoldText("Objective:", objective, 15, y);
+y += 8;
+
+doc.setFont("helvetica", "bold");
+doc.text("Test Environment:", 15, y);
+doc.setFont("helvetica", "normal");
+y += 8;
+
+
+
+// Add Test Environment details (without bold)
+doc.text(`• Hardware Version: ${hardwareVersion}`, 15, y);
+y += 8;
+doc.text(`• Firmware Version: ${firmwareVersion}`, 15, y);
+y += 8;
+doc.text(`• Test Equipment Used: ${testEquipment}`, 15, y);
+y += 8;
+doc.text(`• Operating Conditions: ${operatingConditions}`, 15, y);
+y += 8;
+
+
+        // **Test Cases Table**
+function addTableHeader(yPos) {
+    let startX = 15;
+    let colWidths = [15, 60, 40, 40, 25];
+    let rowHeight = 8;
+    let headers = ["No.", "Description", "Expected", "Actual", "Status"];
+
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    headers.forEach((header, i) => {
+        doc.rect(startX, yPos, colWidths[i], rowHeight);
+        doc.text(header, startX + colWidths[i] / 2, yPos + rowHeight / 2, { align: "center" });
+        startX += colWidths[i];
+    });
+    doc.setFont("helvetica", "normal");
+
+    return yPos + rowHeight;
+}
+
+if (y + 30 > 270) {
+    addNewPage();
+    y = 30;
+}
+
+doc.setFontSize(14);
+doc.setFont("helvetica", "bold");
+doc.text("Test Cases & Results", 15, y);
+doc.setFontSize(12);
+doc.setFont("helvetica", "normal");
+y += 8;
+y = addTableHeader(y);
+
+const table = document.getElementById("testTable");
+for (let i = 1; i < table.rows.length; i++) {
+    let cells = table.rows[i].cells;
+    let serialNumber = i;
+    let rowData = [
+    serialNumber,
+        cells[1].querySelector("input")?.value || "",
+        cells[2].querySelector("input")?.value || "",
+        cells[3].querySelector("input")?.value || "",
+        cells[4].querySelector("input")?.value || ""
+    ];
+
+    let startX = 15;
+    let colWidths = [15, 60, 40, 40, 25];
+
+    // Wrap text for each cell to fit within the column width
+    let wrappedText = rowData.map((text, i) => doc.splitTextToSize(text, colWidths[i] - 4));
+
+    // Find the number of lines needed in the tallest cell (this ensures proper row height)
+    let maxLines = Math.max(...wrappedText.map((lines) => lines.length));
+    let rowHeight = 6 * maxLines; // Height is proportional to the number of lines of text
+
+    if (y + rowHeight > 270) {
+        addNewPage();
+        y = 30;
+        y = addTableHeader(y);
+    }
+
+    wrappedText.forEach((textArray, i) => {
+        // Draw the cell rectangle
+        doc.rect(startX, y, colWidths[i], rowHeight);
+
+        // Calculate the center of the cell (vertical centering)
+        let centerY = y + (rowHeight - (maxLines * 3)) / 2 + 3;
+
+        // Write the wrapped text and center it vertically
+        doc.text(textArray, startX + colWidths[i] / 2, centerY, { align: "center" });
+        startX += colWidths[i];
+    });
+
+    y += rowHeight;
+}
+
+y += 8;
+if (y + 30 > 270) {
+    addNewPage();
+    y = 30;
+}
+
+        
+            // **Issues & Observations**
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.text("Issues & Observations", 15, y);
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            y += 8;
+        
+            let issuesList = document.getElementById("issuesList").getElementsByTagName("li");
+            for (let issue of issuesList) {
+                let inputField = issue.querySelector("input");
+                let issueText = inputField ? inputField.value : "";
+        
+                if (issueText.trim() !== "") {
+                    if (y + 8 > 270) {
+                        addNewPage();
+                        y = 30;
+                    }
+                    doc.text(`- ${issueText}`, 15, y);
+                    y += 8;
+                }
+            }
+        
+            y += 8;
+            if (y + 30 > 270) {
+                addNewPage();
+                y = 30;
+            }
+        
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.text("Conclusion & Recommendations", 15, y);
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            let wrappedConclusion = doc.splitTextToSize(conclusion, pageWidth - 30);
+            doc.text(wrappedConclusion, 15, y + 8);
+            
+            // Update the y position after conclusion to prevent overlap
+            y += 16 + wrappedConclusion.length * 3; // Adjust the height based on the number of lines in the conclusion
+
+   
+// **Next Steps**
+
+const suggestedFixes = document.getElementById("suggestedFixes").value;
+const additionalTests = document.getElementById("additionalTests").value;
+const approvalStatus = document.getElementById("approvalStatus").value;
+const approverName = document.getElementById("approverName").value;
+const approvalDate = document.getElementById("approvalDate").value;
+
+doc.setFontSize(14);
+doc.setFont("helvetica", "bold");
+doc.text("Next Steps", 15, y);
+doc.setFontSize(10);
+doc.setFont("helvetica", "normal");
+y += 8; // More space between sections
+
+// Suggested Fixes (normal text)
+doc.setFont("helvetica", "normal");
+doc.text(`• Suggested Fixes or Retests: ${suggestedFixes}`, 15, y);
+y += 8;
+doc.text(`• Additional Tests Needed: ${additionalTests}`, 15, y);
+y += 8;
+
+// Final Approval Status (normal text)
+doc.text(`• Final Approval Status: ${approvalStatus}`, 15, y);
+y += 8;
+
+doc.setFont("helvetica", "bold");
+doc.text("• Approved By:", 15, y);
+doc.setFont("helvetica", "normal");
+doc.text(approverName, 45, y); // Align next to "Approved By"
+
+doc.setFont("helvetica", "bold");
+doc.text("Date of Approval:", 100, y); // Move further right
+doc.setFont("helvetica", "normal");
+doc.text(approvalDate, 135, y); // Align next to "Date of Approval"
+y += 8;
+        
+            doc.save(`${projectName}_Hardware_Test_Report.pdf`);
+        }
+
+        
+    </script>
+
+</body>
+</html>
