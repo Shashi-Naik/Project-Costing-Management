@@ -44,7 +44,7 @@ def bulk_update_view(request):
                         )
                 else:
                     raise ValueError("Worksheet named 'Project' not found")
-
+#Rohan typed here and pushed
                 # Process sheet 2 - Vendor Code (tblVendordetails)
                 if any(name.strip() == 'Vendor Code' for name in sheet_names):
                     df_vendor_code = pd.read_excel(xls, sheet_name=[name for name in sheet_names if name.strip() == 'Vendor Code'][0])
