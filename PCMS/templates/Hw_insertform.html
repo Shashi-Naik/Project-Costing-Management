@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Hardware Test Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        form {
+            width: 60%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        .remove-btn {
+            background-color: red;
+            color: white;
+            padding: 5px 8px;
+            margin-top: 5px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2 style="text-align: center;">Create Hardware Test Report</h2>
+
+    <form id="testReportForm">
+        <div class="section">
+            <h3>Project Details</h3>
+            <label>Project Name:</label>
+            <input type="text" id="project_name">
+
+            <label>Test Date:</label>
+            <input type="date" id="test_date">
+
+            <label>Tested By:</label>
+            <input type="text" id="tested_by">
+        </div>
+
+        <div class="section">
+            <h3>Test Environment</h3>
+            <label>Hardware Version:</label>
+            <input type="text" id="hardware_version">
+
+            <label>Firmware Version:</label>
+            <input type="text" id="firmware_version">
+
+            <label>Test Equipment Used:</label>
+            <textarea id="test_equipment_used"></textarea>
+
+            <label>Operating Conditions:</label>
+            <textarea id="operating_conditions"></textarea>
+        </div>
+
+        <div class="section">
+            <h3>Test Cases</h3>
+            <div id="testCasesContainer"></div>
+            <button type="button" onclick="addTestCase()">➕ Add Test Case</button>
+        </div>
+
+        <div class="section">
+            <h3>Issues & Observations</h3>
+            <div id="issuesContainer"></div>
+            <button type="button" onclick="addIssue()">➕ Add Issue</button>
+        </div>
+
+        <div class="section">
+            <h3>Conclusion & Recommendations</h3>
+            <label>Summary:</label>
+            <textarea id="summary"></textarea>
+
+            <label>Next Steps:</label>
+            <textarea id="next_steps"></textarea>
+
+            <label>Approved By:</label>
+            <input type="text" id="approved_by">
+
+            <label>Approval Date:</label>
+            <input type="date" id="approval_date">
+        </div>
+
+        <button type="button" onclick="submitForm()">🚀 Create Report</button>
+    </form>
+
+    <script>
+        function addTestCase() {
+            let container = document.getElementById("testCasesContainer");
+            let div = document.createElement("div");
+            div.className = "section";
+            div.innerHTML = `
+                <label>Test Description:</label>
+                <input type="text" class="test_description">
+                <label>Expected Outcome:</label>
+                <input type="text" class="expected_outcome">
+                <label>Actual Outcome:</label>
+                <input type="text" class="actual_outcome">
+                <label>Status:</label>
+                <select class="status">
+                    <option value="Pass">Pass</option>
+                    <option value="Fail">Fail</option>
+                </select>
+                <button type="button" class="remove-btn" onclick="this.parentElement.remove()">❌ Remove</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function addIssue() {
+            let container = document.getElementById("issuesContainer");
+            let div = document.createElement("div");
+            div.className = "section";
+            div.innerHTML = `
+                <label>Issue Description:</label>
+                <textarea class="issue_description"></textarea>
+                <label>Suggested Resolution:</label>
+                <textarea class="suggested_resolution"></textarea>
+                <button type="button" class="remove-btn" onclick="this.parentElement.remove()">❌ Remove</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function submitForm() {
+            let data = {
+                project_name: document.getElementById("project_name").value,
+                test_date: document.getElementById("test_date").value,
+                tested_by: document.getElementById("tested_by").value,
+                environment: {
+                    hardware_version: document.getElementById("hardware_version").value || "",
+                    firmware_version: document.getElementById("firmware_version").value || "",
+                    test_equipment_used: document.getElementById("test_equipment_used").value || "",
+                    operating_conditions: document.getElementById("operating_conditions").value || ""
+                },
+                test_cases: [],
+                issues: [],
+                conclusion: []
+            };
+        
+            // ✅ Collect all Test Cases
+            document.querySelectorAll(".test-case-container").forEach((div, index) => {
+                let test_description = div.querySelector(".test_description")?.value || "";
+                let expected_outcome = div.querySelector(".expected_outcome")?.value || "";
+                let actual_outcome = div.querySelector(".actual_outcome")?.value || "";
+                let status = div.querySelector(".status")?.value || "Pass";
+        
+                if (test_description.trim() !== "") { // ✅ Ensure test cases are not empty
+                    data.test_cases.push({
+                        test_case_no: index + 1,
+                        test_description,
+                        expected_outcome,
+                        actual_outcome,
+                        status
+                    });
+                }
+            });
+        
+            // ✅ Collect all Issues
+            document.querySelectorAll(".issue-container").forEach((div) => {
+                let issue_description = div.querySelector(".issue_description")?.value || "";
+                let suggested_resolution = div.querySelector(".suggested_resolution")?.value || "";
+        
+                if (issue_description.trim() !== "") { // ✅ Ensure issues are not empty
+                    data.issues.push({
+                        issue_description,
+                        suggested_resolution
+                    });
+                }
+            });
+        
+            // ✅ Collect all Conclusions
+            document.querySelectorAll(".conclusion-container").forEach((div) => {
+                let summary = div.querySelector(".summary")?.value || "";
+                let next_steps = div.querySelector(".next_steps")?.value || "";
+                let approved_by = div.querySelector(".approved_by")?.value || "";
+                let approval_date = div.querySelector(".approval_date")?.value || null;
+        
+                if (summary.trim() !== "") { // ✅ Ensure conclusions are not empty
+                    data.conclusion.push({
+                        summary,
+                        next_steps,
+                        approved_by,
+                        approval_date
+                    });
+                }
+            });
+        
+            // ✅ Debugging: Log the data before sending
+            console.log("Submitting Data:", JSON.stringify(data, null, 2));
+        
+            fetch("http://127.0.0.1:8000/reports/create/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(response => {
+                alert("✅ Report Created Successfully!");
+                window.location.href = "/reports/view/";
+            })
+            .catch(error => {
+                console.error("❌ Error:", error);
+                alert("❌ Error: " + error);
+            });
+        }
+        
+        
+        
+        
+    </script>
+
+</body>
+</html>

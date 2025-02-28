@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Hardware Test Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; padding: 10px; }
+        form { width: 60%; margin: auto; }
+        label { font-weight: bold; }
+        input, textarea { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { background-color: #28a745; color: white; padding: 10px; border: none; cursor: pointer; width: 100%; margin-top: 10px; }
+        button:hover { background-color: #218838; }
+        .section { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; }
+        .remove-btn { background-color: red; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <h2>Edit Hardware Test Report</h2>
+
+    <form id="editTestReportForm">
+        <input type="hidden" id="report_id">
+
+        <div class="section">
+            <h3>Project Details</h3>
+            <label>Project Name:</label>
+            <input type="text" id="edit_project_name">
+
+            <label>Test Date:</label>
+            <input type="date" id="edit_test_date">
+
+            <label>Tested By:</label>
+            <input type="text" id="edit_tested_by">
+        </div>
+
+        <div class="section">
+            <h3>Test Environment</h3>
+            <label>Hardware Version:</label>
+            <input type="text" id="edit_hardware_version">
+
+            <label>Firmware Version:</label>
+            <input type="text" id="edit_firmware_version">
+
+            <label>Test Equipment Used:</label>
+            <textarea id="edit_test_equipment_used"></textarea>
+
+            <label>Operating Conditions:</label>
+            <textarea id="edit_operating_conditions"></textarea>
+        </div>
+
+        <div class="section">
+            <h3>Test Cases</h3>
+            <div id="testCasesContainer"></div>
+            <button type="button" onclick="addTestCase()">➕ Add Test Case</button>
+        </div>
+
+        <div class="section">
+            <h3>Issues & Observations</h3>
+            <div id="issuesContainer"></div>
+            <button type="button" onclick="addIssue()">➕ Add Issue</button>
+        </div>
+
+        <div class="section">
+            <h3>Conclusion & Recommendations</h3>
+            <label>Summary:</label>
+            <textarea id="edit_summary"></textarea>
+
+            <label>Next Steps:</label>
+            <textarea id="edit_next_steps"></textarea>
+
+            <label>Approved By:</label>
+            <input type="text" id="edit_approved_by">
+
+            <label>Approval Date:</label>
+            <input type="date" id="edit_approval_date">
+        </div>
+
+        <button type="button" onclick="updateReport()">🚀 Update Report</button>
+    </form>
+
+    <script>
+        let reportId = window.location.pathname.split("/")[3];
+    
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch(`http://127.0.0.1:8000/reports/${reportId}/`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("report_id").value = data.id;
+                document.getElementById("edit_project_name").value = data.project_name;
+                document.getElementById("edit_test_date").value = data.test_date;
+                document.getElementById("edit_tested_by").value = data.tested_by;
+                
+                if (data.environment.length > 0) {
+                    document.getElementById("edit_hardware_version").value = data.environment[0].hardware_version;
+                    document.getElementById("edit_firmware_version").value = data.environment[0].firmware_version;
+                    document.getElementById("edit_test_equipment_used").value = data.environment[0].test_equipment_used;
+                    document.getElementById("edit_operating_conditions").value = data.environment[0].operating_conditions;
+                }
+    
+                data.test_cases.forEach((test, index) => addTestCase(test, index));
+                data.issues.forEach((issue, index) => addIssue(issue, index));
+    
+                if (data.conclusion.length > 0) {
+                    document.getElementById("edit_summary").value = data.conclusion[0].summary;
+                    document.getElementById("edit_next_steps").value = data.conclusion[0].next_steps;
+                    document.getElementById("edit_approved_by").value = data.conclusion[0].approved_by;
+                    document.getElementById("edit_approval_date").value = data.conclusion[0].approval_date;
+                }
+            })
+            .catch(error => console.error("Error loading report:", error));
+        });
+    
+        function updateReport() {
+            let data = {
+                project_name: document.getElementById("edit_project_name").value,
+                test_date: document.getElementById("edit_test_date").value,
+                tested_by: document.getElementById("edit_tested_by").value,
+                environment: {  // ✅ Fix: environment should be an object, not a list
+                    hardware_version: document.getElementById("edit_hardware_version").value,
+                    firmware_version: document.getElementById("edit_firmware_version").value,
+                    test_equipment_used: document.getElementById("edit_test_equipment_used").value,
+                    operating_conditions: document.getElementById("edit_operating_conditions").value
+                },
+                test_cases: Array.from(document.querySelectorAll(".test_description")).map((el, i) => ({
+                    test_case_no: i + 1,
+                    test_description: el.value,
+                    expected_outcome: document.querySelectorAll(".expected_outcome")[i].value,
+                    actual_outcome: document.querySelectorAll(".actual_outcome")[i].value,
+                    status: document.querySelectorAll(".status")[i].value
+                })),
+                issues: Array.from(document.querySelectorAll(".issue_description")).map((el, i) => ({
+                    issue_description: el.value,
+                    suggested_resolution: document.querySelectorAll(".suggested_resolution")[i].value
+                })),
+                conclusion: [{  // ✅ Fix: Conclusion should be a list
+                    summary: document.getElementById("edit_summary").value,
+                    next_steps: document.getElementById("edit_next_steps").value,
+                    approved_by: document.getElementById("edit_approved_by").value,
+                    approval_date: document.getElementById("edit_approval_date").value
+                }]
+            };
+    
+            fetch(`http://127.0.0.1:8000/reports/${reportId}/update/`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            })
+            .then(() => window.location.href = "/reports/view/")
+            .catch(error => console.error("Error updating:", error));
+        }
+    </script>
+    
+
+</body>
+</html>
