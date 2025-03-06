@@ -83,7 +83,7 @@
         let reportId = window.location.pathname.split("/")[3];
     
         document.addEventListener("DOMContentLoaded", () => {
-            fetch(`http://127.0.0.1:8000/reports/${reportId}/`)
+            fetch(`http://127.0.0.1:7000/Hw/reports/${reportId}/`)
             .then(response => response.json())
             .then(data => {
                 document.getElementById("report_id").value = data.id;
@@ -141,12 +141,12 @@
                 }]
             };
     
-            fetch(`http://127.0.0.1:8000/reports/${reportId}/update/`, {
+            fetch(`http://127.0.0.1:7000/Hw/reports/${reportId}/update/`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             })
-            .then(() => window.location.href = "/reports/view/")
+            .then(() => window.location.href = "/Hw/reports/view/")
             .catch(error => console.error("Error updating:", error));
         }
     </script>

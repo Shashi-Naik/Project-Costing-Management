@@ -61,11 +61,11 @@ urlpatterns = [
     path('bins/', views.bins_view, name='bins'),
     path('RacksandBinsMapping/', views.RacksandBinsMapping_view, name='RacksandBinsMapping'), 
     
-    path('create/', views.create_report, name='create_report'),
-    path('reports/', views.list_reports, name='list_reports'),
-    path('report/<int:report_id>/', views.report_details, name='report_details'),
-    path('edit/<int:report_id>/', views.edit_report, name='edit_report'),
-    path('hwReport/', views.Report, name='hwReport'),
+    # path('create/', views.create_report, name='create_report'),
+    # path('reports/', views.list_reports, name='list_reports'),
+    # path('report/<int:report_id>/', views.report_details, name='report_details'),
+    # path('edit/<int:report_id>/', views.edit_report, name='edit_report'),
+    # path('hwReport/', views.Report, name='hwReport'),
     
   
    

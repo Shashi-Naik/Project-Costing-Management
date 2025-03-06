@@ -2905,143 +2905,143 @@ def RacksandBinsMapping_view(request):
 
 #------------------------13/2/25-------------------------------------
 
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import HardwareTestReport, TestEnvironment, TestCase, IssueObservation, ConclusionRecommendation
-from django.views.decorators.csrf import csrf_exempt
-@csrf_exempt
-def create_report(request):
-    if request.method == 'POST':
-        print(request.body)
-        project_name = request.POST.get('project_name')
-        test_date = request.POST.get('test_date')
-        tested_by = request.POST.get('tested_by')
+# from django.shortcuts import render, redirect, get_object_or_404
+# from .models import HardwareTestReport, TestEnvironment, TestCase, IssueObservation, ConclusionRecommendation
+# from django.views.decorators.csrf import csrf_exempt
+# @csrf_exempt
+# def create_report(request):
+#     if request.method == 'POST':
+#         print(request.body)
+#         project_name = request.POST.get('project_name')
+#         test_date = request.POST.get('test_date')
+#         tested_by = request.POST.get('tested_by')
 
-        report = HardwareTestReport.objects.create(
-            project_name=project_name,
-            test_date=test_date,
-            tested_by=tested_by
-        )
+#         report = HardwareTestReport.objects.create(
+#             project_name=project_name,
+#             test_date=test_date,
+#             tested_by=tested_by
+#         )
 
-        hardware_version = request.POST.get('hardware_version')
-        firmware_version = request.POST.get('firmware_version')
-        test_equipment_used = request.POST.get('test_equipment_used')
-        operating_conditions = request.POST.get('operating_conditions')
+#         hardware_version = request.POST.get('hardware_version')
+#         firmware_version = request.POST.get('firmware_version')
+#         test_equipment_used = request.POST.get('test_equipment_used')
+#         operating_conditions = request.POST.get('operating_conditions')
 
-        TestEnvironment.objects.create(
-            report=report,
-            hardware_version=hardware_version,
-            firmware_version=firmware_version,
-            test_equipment_used=test_equipment_used,
-            operating_conditions=operating_conditions
-        )
+#         TestEnvironment.objects.create(
+#             report=report,
+#             hardware_version=hardware_version,
+#             firmware_version=firmware_version,
+#             test_equipment_used=test_equipment_used,
+#             operating_conditions=operating_conditions
+#         )
 
-        test_cases_count = int(request.POST.get('test_cases_count', 0))
-        for i in range(1, test_cases_count + 1):
-            test_case_no = request.POST.get(f'test_case_no_{i}')
-            test_description = request.POST.get(f'test_description_{i}')
-            expected_outcome = request.POST.get(f'expected_outcome_{i}')
-            actual_outcome = request.POST.get(f'actual_outcome_{i}')
-            status = request.POST.get(f'status_{i}')
+#         test_cases_count = int(request.POST.get('test_cases_count', 0))
+#         for i in range(1, test_cases_count + 1):
+#             test_case_no = request.POST.get(f'test_case_no_{i}')
+#             test_description = request.POST.get(f'test_description_{i}')
+#             expected_outcome = request.POST.get(f'expected_outcome_{i}')
+#             actual_outcome = request.POST.get(f'actual_outcome_{i}')
+#             status = request.POST.get(f'status_{i}')
 
-            if test_case_no and test_description:
-                TestCase.objects.create(
-                    report=report,
-                    test_case_no=test_case_no,
-                    test_description=test_description,
-                    expected_outcome=expected_outcome,
-                    actual_outcome=actual_outcome,
-                    status=status
-                )
+#             if test_case_no and test_description:
+#                 TestCase.objects.create(
+#                     report=report,
+#                     test_case_no=test_case_no,
+#                     test_description=test_description,
+#                     expected_outcome=expected_outcome,
+#                     actual_outcome=actual_outcome,
+#                     status=status
+#                 )
 
-        issue_description = request.POST.get('issue_description')
-        suggested_resolution = request.POST.get('suggested_resolution')
+#         issue_description = request.POST.get('issue_description')
+#         suggested_resolution = request.POST.get('suggested_resolution')
 
-        if issue_description:
-            IssueObservation.objects.create(
-                report=report,
-                issue_description=issue_description,
-                suggested_resolution=suggested_resolution
-            )
+#         if issue_description:
+#             IssueObservation.objects.create(
+#                 report=report,
+#                 issue_description=issue_description,
+#                 suggested_resolution=suggested_resolution
+#             )
 
-        summary = request.POST.get('summary')
-        next_steps = request.POST.get('next_steps')
-        approved_by = request.POST.get('approved_by')
-        approval_date = request.POST.get('approval_date')
+#         summary = request.POST.get('summary')
+#         next_steps = request.POST.get('next_steps')
+#         approved_by = request.POST.get('approved_by')
+#         approval_date = request.POST.get('approval_date')
 
-        ConclusionRecommendation.objects.create(
-            report=report,
-            summary=summary,
-            next_steps=next_steps,
-            approved_by=approved_by,
-            approval_date=approval_date
-        )
+#         ConclusionRecommendation.objects.create(
+#             report=report,
+#             summary=summary,
+#             next_steps=next_steps,
+#             approved_by=approved_by,
+#             approval_date=approval_date
+#         )
 
-        return redirect('list_reports')
+#         return redirect('list_reports')
 
-    return render(request, 'create_report.html')
+#     return render(request, 'create_report.html')
 
-def list_reports(request):
-    reports = HardwareTestReport.objects.all()
-    return render(request, 'list_reports.html', {'reports': reports})
+# def list_reports(request):
+#     reports = HardwareTestReport.objects.all()
+#     return render(request, 'list_reports.html', {'reports': reports})
 
-def report_details(request, report_id):
-    report = get_object_or_404(HardwareTestReport, id=report_id)
-    return render(request, 'report_details.html', {'report': report})
-
-
-def edit_report(request, report_id):
-    report = get_object_or_404(HardwareTestReport, id=report_id)
-
-    if request.method == 'POST':
-        report.project_name = request.POST.get('project_name')
-        report.test_date = request.POST.get('test_date')
-        report.tested_by = request.POST.get('tested_by')
-        report.save()
-
-        environment = report.environment.first()
-        environment.hardware_version = request.POST.get('hardware_version')
-        environment.firmware_version = request.POST.get('firmware_version')
-        environment.test_equipment_used = request.POST.get('test_equipment_used')
-        environment.operating_conditions = request.POST.get('operating_conditions')
-        environment.save()
-
-        test_cases_count = int(request.POST.get('test_cases_count', 0))
-        existing_test_cases = list(report.test_cases.all())
-
-        for i in range(1, test_cases_count + 1):
-            test_case_no = request.POST.get(f'test_case_no_{i}')
-            test_description = request.POST.get(f'test_description_{i}')
-            expected_outcome = request.POST.get(f'expected_outcome_{i}')
-            actual_outcome = request.POST.get(f'actual_outcome_{i}')
-            status = request.POST.get(f'status_{i}')
-
-            test_case_id = request.POST.get(f'test_case_id_{i}')
-            if test_case_id:
-                test_case = TestCase.objects.get(id=test_case_id)
-                test_case.test_case_no = test_case_no
-                test_case.test_description = test_description
-                test_case.expected_outcome = expected_outcome
-                test_case.actual_outcome = actual_outcome
-                test_case.status = status
-                test_case.save()
-            else:
-                TestCase.objects.create(
-                    report=report,
-                    test_case_no=test_case_no,
-                    test_description=test_description,
-                    expected_outcome=expected_outcome,
-                    actual_outcome=actual_outcome,
-                    status=status
-                )
-
-        return redirect('list_reports')
-
-    return render(request, 'edit_report.html', {'report': report})
+# def report_details(request, report_id):
+#     report = get_object_or_404(HardwareTestReport, id=report_id)
+#     return render(request, 'report_details.html', {'report': report})
 
 
+# def edit_report(request, report_id):
+#     report = get_object_or_404(HardwareTestReport, id=report_id)
+
+#     if request.method == 'POST':
+#         report.project_name = request.POST.get('project_name')
+#         report.test_date = request.POST.get('test_date')
+#         report.tested_by = request.POST.get('tested_by')
+#         report.save()
+
+#         environment = report.environment.first()
+#         environment.hardware_version = request.POST.get('hardware_version')
+#         environment.firmware_version = request.POST.get('firmware_version')
+#         environment.test_equipment_used = request.POST.get('test_equipment_used')
+#         environment.operating_conditions = request.POST.get('operating_conditions')
+#         environment.save()
+
+#         test_cases_count = int(request.POST.get('test_cases_count', 0))
+#         existing_test_cases = list(report.test_cases.all())
+
+#         for i in range(1, test_cases_count + 1):
+#             test_case_no = request.POST.get(f'test_case_no_{i}')
+#             test_description = request.POST.get(f'test_description_{i}')
+#             expected_outcome = request.POST.get(f'expected_outcome_{i}')
+#             actual_outcome = request.POST.get(f'actual_outcome_{i}')
+#             status = request.POST.get(f'status_{i}')
+
+#             test_case_id = request.POST.get(f'test_case_id_{i}')
+#             if test_case_id:
+#                 test_case = TestCase.objects.get(id=test_case_id)
+#                 test_case.test_case_no = test_case_no
+#                 test_case.test_description = test_description
+#                 test_case.expected_outcome = expected_outcome
+#                 test_case.actual_outcome = actual_outcome
+#                 test_case.status = status
+#                 test_case.save()
+#             else:
+#                 TestCase.objects.create(
+#                     report=report,
+#                     test_case_no=test_case_no,
+#                     test_description=test_description,
+#                     expected_outcome=expected_outcome,
+#                     actual_outcome=actual_outcome,
+#                     status=status
+#                 )
+
+#         return redirect('list_reports')
+
+#     return render(request, 'edit_report.html', {'report': report})
 
 
 
 
-def Report(request):
-    return render(request, 'hardwaretestreport.html')
+
+
+# def Report(request):
+#     return render(request, 'hardwaretestreport.html')

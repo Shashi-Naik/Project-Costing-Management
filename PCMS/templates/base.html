@@ -197,7 +197,7 @@
           <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="{% url 'upload_to_folder_sch' %}">Schematic Details</a></li>
               <li><a class="dropdown-item" href="{% url 'engg_bom_upload' %}">Engineering BOM</a></li>
-              <li><a class="dropdown-item" href="{% url 'hwReport' %}">Hardware Test Report</a></li>
+              
           </ul>
       </li>
 
@@ -222,6 +222,35 @@
 
       
   </ul>
+</li>
+
+ <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="projectDropdown" role="button" data-bs-toggle="dropdown"
+        aria-expanded="false">
+        Reports
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="engineeringDropdown">
+        <li class="dropdown-submenu">
+            <a class="dropdown-item dropdown-toggle" href="#" id="hardwareDropdown">Hardware Reports </a>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'report_form' %}">Create  Hardware Report</a></li>                
+                <li><a class="dropdown-item" href="{% url 'report_list' %}">All Reports</a></li>
+                
+            </ul>
+        </li> 
+
+       
+        {% comment %} <li class="dropdown-submenu">
+            <a class="dropdown-item dropdown-toggle" href="#" id="hardwareDropdown">Store Inward </a>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'CreateVendorStoresInward' %}">Vendor Store</a></li>                
+                <li><a class="dropdown-item" href="{% url 'CreateCustomerStoresInward' %}">Customer Store</a></li>
+                <li><a class="dropdown-item" href="{% url 'CreateOthersStoresInward' %}">Others Store</a></li>
+            </ul>
+        </li> {% endcomment %}
+        
+        
+    </ul>
 </li>
 <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" href="#" id="engineeringDropdown" role="button" data-bs-toggle="dropdown"
@@ -267,7 +296,7 @@
     <a class="dropdown-item" href="{% url 'Delivarychalan' %}">Delivary Challan</a>
 
     </ul>
-  </li>
+</li>
 
           </ul>
       </div>
